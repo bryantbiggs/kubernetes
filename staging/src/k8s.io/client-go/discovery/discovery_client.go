@@ -41,7 +41,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/version"
-	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/openapi"
 	restclient "k8s.io/client-go/rest"
 )
@@ -733,7 +732,7 @@ func setDiscoveryDefaults(config *restclient.Config) error {
 		// see https://issue.k8s.io/86149
 		config.Burst = defaultBurst
 	}
-	codec := runtime.NoopEncoder{Decoder: scheme.Codecs.UniversalDecoder()}
+	codec := runtime.NoopEncoder{Decoder: Codecs.UniversalDecoder()}
 	config.NegotiatedSerializer = serializer.NegotiatedSerializerWrapper(runtime.SerializerInfo{Serializer: codec})
 	if len(config.UserAgent) == 0 {
 		config.UserAgent = restclient.DefaultKubernetesUserAgent()
