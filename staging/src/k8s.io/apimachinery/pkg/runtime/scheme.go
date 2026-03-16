@@ -29,7 +29,6 @@ import (
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apimachinery/pkg/util/validation/field"
-	"k8s.io/kube-openapi/pkg/util"
 )
 
 // Scheme defines methods for serializing and deserializing API objects, a type
@@ -745,6 +744,14 @@ func (s *Scheme) Name() string {
 // call chains to NewReflector, so they'd be low entropy names for reflectors
 var internalPackages = []string{"k8s.io/apimachinery/pkg/runtime/scheme.go"}
 
+// openAPIModelNamer is an interface Go types may implement to provide an OpenAPI model name.
+// This is a local copy of k8s.io/kube-openapi/pkg/util.OpenAPIModelNamer to avoid a
+// dependency on kube-openapi from this package. The two interfaces are structurally
+// identical so any type implementing one also satisfies the other.
+type openAPIModelNamer interface {
+	OpenAPIModelName() string
+}
+
 // ToOpenAPIDefinitionName returns the REST-friendly OpenAPI definition name known type identified by groupVersionKind.
 // If the groupVersionKind does not identify a known type, an error is returned.
 // The Version field of groupVersionKind is required, and the Group and Kind fields are required for unstructured.Unstructured
@@ -753,7 +760,7 @@ var internalPackages = []string{"k8s.io/apimachinery/pkg/runtime/scheme.go"}
 // The OpenAPI definition name is the canonical name of the type, with the group and version removed.
 // For example, the OpenAPI definition name of Pod is `io.k8s.api.core.v1.Pod`.
 //
-// This respects the util.OpenAPIModelNamer interface and will return the name returned by
+// This respects the openAPIModelNamer interface and will return the name returned by
 // OpenAPIModelName() if it is defined on the type.
 //
 // A known type that is registered as an unstructured.Unstructured type is treated as a custom resource and
@@ -770,7 +777,7 @@ func (s *Scheme) ToOpenAPIDefinitionName(groupVersionKind schema.GroupVersionKin
 	}
 
 	// Use a namer if provided
-	if namer, ok := example.(util.OpenAPIModelNamer); ok {
+	if namer, ok := example.(openAPIModelNamer); ok {
 		return namer.OpenAPIModelName(), nil
 	}
 
