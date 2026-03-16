@@ -22,7 +22,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/validation"
 )
 
 const (
@@ -262,7 +261,9 @@ type ResourcePool struct {
 const ResourceSliceMaxSharedCapacity = 128
 const ResourceSliceMaxDevices = 128
 const ResourceSliceMaxDevicesWithTaintsOrConsumesCounters = 64
-const PoolNameMaxLength = validation.DNS1123SubdomainMaxLength // Same as for a single node name.
+// PoolNameMaxLength is a DNS 1123 subdomain maximum length (RFC 1123).
+// Same as for a single node name.
+const PoolNameMaxLength = 253
 const BindingConditionsMaxSize = 4
 const BindingFailureConditionsMaxSize = 4
 
